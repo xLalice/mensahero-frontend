@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios, { AxiosError } from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface SignupResponse {
   token: string;
@@ -14,6 +14,7 @@ const Signup: React.FC<SignupProps> = () => {
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -34,7 +35,7 @@ const Signup: React.FC<SignupProps> = () => {
       const token = response.data.token;
       localStorage.setItem('token', token);
       console.log('Signup successful');
-      console.log(response.data);
+      navigate('/login');
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.message || 'Unknown error';
@@ -47,11 +48,11 @@ const Signup: React.FC<SignupProps> = () => {
   };
 
   return (
-    <div className="signup-container">
+    <div className="p-4">
       <h2 className="font-bold text-2xl mt-[100px] mb-8">Sign Up</h2>
       {error && <p className="bg-red-100 text-red-700 p-2 rounded mb-4">{error}</p>}
-      <form className="flex flex-col gap-4"onSubmit={handleSubmit}>
-        <div className='flex flex-col'>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+        <div className="flex flex-col">
           <label htmlFor="username">Username:</label>
           <input
             type="text"
@@ -59,10 +60,10 @@ const Signup: React.FC<SignupProps> = () => {
             value={username}
             onChange={(event) => setUsername(event.target.value)}
             required
-            className = "p-2 border-2 border-gray-200"
+            className="p-2 border-2 border-gray-200"
           />
         </div>
-        <div className='flex flex-col'>
+        <div className="flex flex-col">
           <label htmlFor="email">Email:</label>
           <input
             type="email"
@@ -70,10 +71,10 @@ const Signup: React.FC<SignupProps> = () => {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
-            className = "p-2 border-2 border-gray-200"
+            className="p-2 border-2 border-gray-200"
           />
         </div>
-        <div className='flex flex-col'>
+        <div className="flex flex-col">
           <label htmlFor="password">Password:</label>
           <input
             type="password"
@@ -81,10 +82,10 @@ const Signup: React.FC<SignupProps> = () => {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
-            className = "p-2 border-2 border-gray-200"
+            className="p-2 border-2 border-gray-200"
           />
         </div>
-        <div className='flex flex-col'>
+        <div className="flex flex-col">
           <label htmlFor="confirm-password">Confirm Password:</label>
           <input
             type="password"
@@ -92,11 +93,13 @@ const Signup: React.FC<SignupProps> = () => {
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
             required
-            className = "p-2 border-2 border-gray-200"
+            className="p-2 border-2 border-gray-200"
           />
         </div>
-        <button type="submit" className='bg-blue-500 text-white p-2 rounded-3xl'>Sign Up</button>
-        <p className="mt-4 text-gray-400">Already have an account? <Link to="/login"><span className="text-blue-800 font-bold">Login</span></Link></p>
+        <button type="submit" className="bg-blue-500 text-white p-2 rounded-3xl">Sign Up</button>
+        <p className="mt-4 text-gray-400">
+          Already have an account? <Link to="/login"><span className="text-blue-800 font-bold">Login</span></Link>
+        </p>
       </form>
     </div>
   );
