@@ -3,6 +3,7 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import Home from './components/Home';
 import Convo from './components/Convo';
+import Profile from './components/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './components/AuthProvider';
 
@@ -22,6 +23,7 @@ function App() {
             }
           />
           <Route path="/conversation/:conversationId" element={<ProtectedRoute><Convo /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         </Routes>
       </Router>
     </AuthProvider>

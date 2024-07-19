@@ -20,66 +20,68 @@ interface Conversation {
 }
 
 const Home: React.FC = () => {
-    const [users, setUsers] = useState<User[]>([]);
-    const [conversations, setConversations] = useState<Conversation[]>([]);
-    const { token, userId } = useAuth();
-    const navigate = useNavigate();
+  const [users, setUsers] = useState<User[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const { token, userId } = useAuth();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-      if (userId && token) {
-        fetchUsers();
-        fetchConversations();
-      } else {
-        console.error('No user ID or token found in localStorage');
-      }
-    }, [userId, token]);
+  useEffect(() => {
+    if (userId && token) {
+      fetchUsers();
+      fetchConversations();
+    } else {
+      console.error('No user ID or token found in localStorage');
+    }
+  }, [userId, token]);
 
-    const fetchUsers = async () => {
-      try {
-        const response = await api.get('http://localhost:3000/api/users', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setUsers(response.data.filter((user: User) => user._id !== userId));
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      }
-    };
+  const fetchUsers = async () => {
+    try {
+      const response = await api.get('http://localhost:3000/api/users', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUsers(response.data.filter((user: User) => user._id !== userId));
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
 
-    const fetchConversations = async () => {
-      try {
-        const response = await api.get(`http://localhost:3000/api/conversations/user/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setConversations(response.data);
-      } catch (error) {
-        console.error('Error fetching conversations:', error);
-      }
-    };
+  const fetchConversations = async () => {
+    try {
+      const response = await api.get(`http://localhost:3000/api/conversations/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setConversations(response.data);
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+    }
+  };
 
-    const startNewConversation = async (otherUserId: string) => {
-      try {
-        const response = await api.post('http://localhost:3000/api/conversations', {
-          participants: [userId, otherUserId],
-        }, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const conversation = response.data;
-        navigate(`/conversation/${conversation._id}`);
-      } catch (error) {
-        console.error('Error starting new conversation:', error);
-      }
-    };
+  const startNewConversation = async (otherUserId: string) => {
+    try {
+      const response = await api.post('http://localhost:3000/api/conversations', {
+        participants: [userId, otherUserId],
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const conversation = response.data;
+      navigate(`/conversation/${conversation._id}`);
+    } catch (error) {
+      console.error('Error starting new conversation:', error);
+    }
+  };
 
-    return (
-      <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Mensahero</h1>
-      
+  return (
+    <div className="container mx-auto p-4">
+      <div className="flex justify-between items-center">
+        <img src="/header.png" className='w-[150px]' alt="" />
+        <img src="/hamburger.png" alt="menu" className="w-8 h-8 mb-4 cursor-pointer" onClick={() => navigate('/profile')}/>
+      </div>
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-2">Available Users</h2>
         <div className="flex space-x-4 overflow-x-auto">
@@ -119,3 +121,4 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
