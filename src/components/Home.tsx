@@ -39,7 +39,7 @@ const Home: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await api.get('http://localhost:3000/api/users', {
+      const response = await api.get('https://mensahero-backend.onrender.com/api/users', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -52,7 +52,7 @@ const Home: React.FC = () => {
 
   const fetchConversations = async () => {
     try {
-      const response = await api.get(`http://localhost:3000/api/conversations/user/${userId}`, {
+      const response = await api.get(`https://mensahero-backend.onrender.com/api/conversations/user/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -172,7 +172,7 @@ const UserProfile: React.FC = () => {
           <button type="button" onClick={() => setIsEditing(false)} className="ml-2 bg-gray-300 p-2 rounded">Cancel</button>
         </form>
       ) : (
-        <div className="space-y-4 flex flex-col items-center">
+        <div className="space-y-4 flex flex-col">
           <div 
             className={`w-32 h-32 mx-auto  rounded-full overflow-hidden ${isDragging ? 'border-2 border-dashed border-blue-500' : ''}`}
             onDragEnter={handleDragIn}
@@ -181,7 +181,7 @@ const UserProfile: React.FC = () => {
             onDrop={handleDrop}
           >
             <img 
-            src={`http://localhost:3000${userData.profilePic}?${new Date().getTime()}`}
+            src={`https://mensahero-backend.onrender.com/${userData.profilePic}?${new Date().getTime()}`}
             alt="Profile Picture" 
             className="w-full h-full object-cover"
             onError={(e) => {

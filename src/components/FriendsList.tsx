@@ -17,7 +17,7 @@ const FriendsList: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const newSocket = io('http://localhost:3000', {
+        const newSocket = io('https://mensahero-backend.onrender.com', {
             transports: ['websocket', 'polling']
         });
         
