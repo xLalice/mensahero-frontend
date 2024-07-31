@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import axios, { AxiosError } from 'axios';
+import api from '../services/api';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';  
 
 interface SignupResponse {
   token: string;
 }
 
-interface SignupProps {}
-
-const Signup: React.FC<SignupProps> = () => {
+const Signup: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -26,7 +25,7 @@ const Signup: React.FC<SignupProps> = () => {
     }
 
     try {
-      const response = await axios.post<SignupResponse>('http://localhost:3000/api/auth/register', {
+      const response = await api.post<SignupResponse>('/auth/register', {
         email,
         username,
         password,
