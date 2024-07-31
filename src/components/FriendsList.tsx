@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { io, Socket } from 'socket.io-client';
 import api from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 interface Friend {
     _id: string;
@@ -13,6 +14,7 @@ const FriendsList: React.FC = () => {
     const [friends, setFriends] = useState<Friend[]>([]);
     const [socket, setSocket] = useState<Socket | null>(null);
     const currentUserId = localStorage.getItem('userId');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const newSocket = io('http://localhost:3000', {
@@ -71,12 +73,28 @@ const FriendsList: React.FC = () => {
         }
     }
 
+    const startNewConversation = async (otherUserId: string) => {
+    try {
+      const response = await api.post('/conversations', {
+        participants: [currentUserId, otherUserId],
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const conversation = response.data;
+      navigate(`/conversation/${conversation._id}`);
+    } catch (error) {
+      console.error('Error starting new conversation:', error);
+    }
+  };
+
     return (
         <div className="p-4 overflow-scroll relative">
             <h2 className="text-lg font-semibold mb-4 fixed">Friends</h2>
             <div className="flex gap-4 mt-8">
                 {friends.map(friend => (
-                    <div key={friend._id} className="flex flex-col items-center justify-between p-2 ">
+                    <div key={friend._id} className="flex flex-col items-center justify-between p-2" onClick={() => startNewConversation(friend._id)}>
                         <img 
                             className="w-10 h-10 rounded-full" 
                             src={friend.profilePic} 

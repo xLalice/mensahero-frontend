@@ -63,21 +63,7 @@ const Home: React.FC = () => {
     }
   };
 
-  const startNewConversation = async (otherUserId: string) => {
-    try {
-      const response = await api.post('http://localhost:3000/api/conversations', {
-        participants: [userId, otherUserId],
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const conversation = response.data;
-      navigate(`/conversation/${conversation._id}`);
-    } catch (error) {
-      console.error('Error starting new conversation:', error);
-    }
-  };
+  
 
   const toggleDropdown = () => {
     setDropdownVisible(!dropdownVisible);
