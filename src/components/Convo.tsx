@@ -151,7 +151,7 @@ const Convo: React.FC = () => {
                                 <p>{msg.content}</p>
                             ): (<>
                                     <span>{msg.senderId === currentUserId ? 'You: ' : ""}</span>
-                                    <img src={`http://localhost:3000/${msg.content}`} alt="Sent Image"/>
+                                    <img src={`https://mensahero-backend.onrender.com/uploads/${msg.content}`} alt="Sent Image"/>
                                 </>
                             )}
                         </span>
