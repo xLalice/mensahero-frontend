@@ -3,9 +3,7 @@ import api from '../services/api';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';  
 
-interface SignupResponse {
-  token: string;
-}
+
 
 const Signup: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -25,14 +23,11 @@ const Signup: React.FC = () => {
     }
 
     try {
-      const response = await api.post<SignupResponse>('/auth/register', {
+      await api.post('/auth/register', {
         email,
         username,
         password,
       });
-
-      const token = response.data.token;
-      localStorage.setItem('token', token);
       console.log('Signup successful');
       navigate('/login');
     } catch (error) {
