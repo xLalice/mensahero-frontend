@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useWebSocket } from "../contexts/WebSocketContext";
 import { useAuth } from "../contexts/AuthProvider";
+import { useOnlineUsers } from "../contexts/OnlineUsersContext";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { AvatarOnline } from "./AvatarOnline";
 
 interface Friend {
   id: number;
@@ -14,58 +16,28 @@ interface Friend {
 const FriendsList: React.FC = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const { userId } = useAuth();
-  const socket = useWebSocket();
+  const onlineUsers = useOnlineUsers();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchAndEmitStatus = async () => {
-      await fetchFriends();
-
-      if (socket && userId) {
-        socket.emit("user_connected", userId);
+    const fetchFriends = async () => {
+      try {
+        const response = await api.get("/users/");
+        const sortedFriends = sortFriends(response.data, onlineUsers);
+        setFriends(sortedFriends);
+      } catch (error) {
+        console.error("Error fetching friends:", error);
       }
     };
 
-    fetchAndEmitStatus();
-  }, [userId, socket]);
+    fetchFriends();
+  }, [onlineUsers]);
 
-  useEffect(() => {
-    if (socket) {
-      const handleUpdateOnlineUsers = (onlineUserIds: number[]) => {
-        setFriends((prevFriends) => {
-          const updatedFriends = prevFriends.map((friend) => ({
-            ...friend,
-            isOnline: onlineUserIds.includes(friend.id),
-          }));
-          return sortFriends(updatedFriends);
-        });
-      };
-
-      socket.on("update_online_users", handleUpdateOnlineUsers);
-
-      return () => {
-        if (socket) {
-          socket.off("update_online_users", handleUpdateOnlineUsers);
-        }
-      };
-    }
-  }, [socket]);
-
-  const fetchFriends = async () => {
-    try {
-      const response = await api.get("/users/");
-      const sortedFriends = sortFriends(response.data);
-      setFriends(sortedFriends);
-    } catch (error) {
-      console.error("Error fetching friends:", error);
-    }
-  };
-
-  const sortFriends = (list: Friend[]) => {
-    const userIdNumber = Number(userId);
-    return list
-      .filter((friend: Friend) => friend.id !== userIdNumber)
-      .sort((a: Friend, b: Friend) => Number(b.isOnline) - Number(a.isOnline));
+  const sortFriends = (list: Friend[], onlineUsers: Map<number, string>) => {
+    return list.map((friend) => ({
+      ...friend,
+      isOnline: onlineUsers.has(friend.id),
+    })).sort((a, b) => Number(b.isOnline) - Number(a.isOnline));
   };
 
   const startNewConversation = async (
@@ -115,24 +87,13 @@ const FriendsList: React.FC = () => {
                 )
               }
             >
-              <img
-                className="w-10 h-10 rounded-full"
-                src={friend.profilePic}
-                alt={friend.username}
-                onError={(e) => {
-                  const img = e.target as HTMLImageElement;
-                  img.src = "/default.jpg";
-                  img.onerror = null;
-                }}
+              <AvatarOnline
+                profilePic={friend.profilePic}
+                isOnline={friend.isOnline}
               />
               <span className="mt-2 text-center w-full truncate">
                 {friend.username}
               </span>
-              <span
-                className={`w-3 h-3 rounded-full ${
-                  friend.isOnline ? "bg-green-500" : "bg-gray-500"
-                }`}
-              ></span>
             </div>
           ))
         ) : (

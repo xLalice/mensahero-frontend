@@ -15,6 +15,7 @@ export interface Conversation {
       timestamp: Date;
       messageType: string;
     };
+    userId?: number;
   }
 
   type MessageType = "text" | "image";
@@ -26,5 +27,4 @@ export interface Message {
   conversationId: number;
   timestamp: Date;
   messageType: MessageType;
-  
 }

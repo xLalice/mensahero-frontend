@@ -55,14 +55,12 @@ const UserProfile: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
-    console.log('Drag entered');
   }, []);
 
   const handleDragOut = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    console.log('Drag left');
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -73,7 +71,6 @@ const UserProfile: React.FC = () => {
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
-      console.log('Dropped file:', file.name, file.type);
       if (file.type.startsWith('image/')) {
         handleFileUpload(file);
       } else {
@@ -81,7 +78,6 @@ const UserProfile: React.FC = () => {
       }
     } else if (e.dataTransfer.items && e.dataTransfer.items[0]) {
       const item = e.dataTransfer.items[0];
-      console.log('Dropped item:', item.kind, item.type);
       if (item.kind === 'file' && item.type.startsWith('image/')) {
         const file = item.getAsFile();
         if (file) {
@@ -96,7 +92,6 @@ const UserProfile: React.FC = () => {
   }, []);
 
   const handleFileUpload = async (file: File) => {
-    console.log('Uploading file:', file.name);
     const formData = new FormData();
     formData.append('profilePic', file);
   
@@ -106,7 +101,6 @@ const UserProfile: React.FC = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log('Upload response:', response.data);
       setUserData(response.data);
     } catch (error) {
       console.error('Error uploading profile picture:', error);

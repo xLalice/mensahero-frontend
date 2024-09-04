@@ -3,19 +3,21 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../contexts/AuthProvider";
 import { useWebSocket } from "../contexts/WebSocketContext";
-import ConvoForm from "./ConvoForm";
+import ConvoForm from "../components/ConvoForm";
 import { formatTimeAgo } from "../utils/timeUtils";
 import { Message } from "../utils/types";
-
-
+import { useOnlineUsers } from "../contexts/OnlineUsersContext";
+import { AvatarOnline } from "../components/AvatarOnline"; 
 
 const Convo: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const location = useLocation();
-  const {profilePic, username} = location.state || {};
+  const { profilePic, username } = location.state || {};
   const { conversationId } = useParams<{ conversationId: string }>();
+  const [participants, setParticipants] = useState<{ userId: number, conversationId: number }[]>([]);
   const { userId } = useAuth();
   const socket = useWebSocket();
+  const onlineUsers = useOnlineUsers();
   const navigate = useNavigate();
 
   const fetchConversation = useCallback(async () => {
@@ -34,7 +36,8 @@ const Convo: React.FC = () => {
         console.error("Invalid participants data:", data.participants);
         return;
       }
-      
+
+      setParticipants(data.participants);
       setMessages(data.messages);
     } catch (error) {
       console.error("Error fetching conversation data:", error);
@@ -45,7 +48,6 @@ const Convo: React.FC = () => {
     fetchConversation();
 
     if (socket && conversationId) {
-
       socket.on(`receive_message`, (newMessage: Message) => {
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       });
@@ -62,7 +64,7 @@ const Convo: React.FC = () => {
       ? "bg-blue-500 text-white"
       : "bg-gray-200 text-black";
     const alignmentClass = isCurrentUser
-      ? "justify-end text-right"
+      ? "justify-end text-right gap-4"
       : "justify-start text-left";
   
     return (
@@ -92,27 +94,25 @@ const Convo: React.FC = () => {
           <img
             src={profilePic}
             alt="Profile"
-            className="rounded-full w-10 h-10 ml-3 self-start"
+            className="rounded-full w-10 h-10 mr-3 self-start"
           />
         )}
       </div>
     );
   };
   
-
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex bg-gray-200 h-16 items-center p-4">
+      <div className="flex bg-gray-200 h-16 items-center p-4 gap-4">
         <img
           src="/back.png"
           className="w-4 h-4 mr-4 cursor-pointer"
           alt="Back"
           onClick={() => navigate(-1)}
         />
-        <img
-          src={profilePic}
-          className="w-12 h-12 rounded-full mr-4"
-          alt={username}
+        <AvatarOnline
+          profilePic={profilePic}
+          isOnline={onlineUsers.has(conversationId ? participants[0]?.userId : 0)}
         />
         <h2 className="text-2xl font-bold">
           {username || "Loading..."}
