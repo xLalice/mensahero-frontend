@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import api from '../services/api';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from './AuthProvider';
+import { useAuth } from '../contexts/AuthProvider';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const {setToken, setUserId} = useAuth();
+  const {setUserId} = useAuth();
 
 
 
@@ -20,11 +20,9 @@ const Login: React.FC = () => {
         username,
         password,
       });
-      const { token, user } = response.data;  
-      localStorage.setItem('token', token);
-      localStorage.setItem('userId', user._id); 
-      setToken(token);
-      setUserId(user._id);
+      const { user } = response.data;  
+      localStorage.setItem('userId', user.id); 
+      setUserId(user.id);
       navigate('/');
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {

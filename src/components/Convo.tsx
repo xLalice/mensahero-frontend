@@ -5,18 +5,9 @@ import { useAuth } from "../contexts/AuthProvider";
 import { useWebSocket } from "../contexts/WebSocketContext";
 import ConvoForm from "./ConvoForm";
 import { formatTimeAgo } from "../utils/timeUtils";
+import { Message } from "../utils/types";
 
-type MessageType = "text" | "image";
 
-export interface Message {
-  id: number;
-  content: string;
-  senderId: number;
-  conversationId: number;
-  timestamp: Date;
-  messageType: MessageType;
-  
-}
 
 const Convo: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -54,14 +45,13 @@ const Convo: React.FC = () => {
     fetchConversation();
 
     if (socket && conversationId) {
-      const conversationIdNumber = parseInt(conversationId); 
 
-      socket.on(`new_message_${conversationIdNumber}`, (newMessage: Message) => {
+      socket.on(`receive_message`, (newMessage: Message) => {
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       });
 
       return () => {
-        socket.off(`new_message_${conversationIdNumber}`);
+        socket.off("receive_message");
       };
     }
   }, [socket, conversationId, fetchConversation]);

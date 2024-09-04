@@ -3,28 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthProvider";
 import FriendsList from "./FriendsList";
 import api from "../services/api";
+import { useWebSocket } from "../contexts/WebSocketContext";
 import { formatTimeAgo } from "../utils/timeUtils";
-
-interface User {
-  id: number;
-  username: string;
-  profilePic: string;
-}
-
-interface Conversation {
-  id: number;
-  profilePic: string;
-  username: string;
-  participants: number[];
-  lastMessage: {
-    content: string;
-    timestamp: string;
-    messageType: string;
-  };
-}
+import { Conversation, Message } from "../utils/types";
 
 const Home: React.FC = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const socket = useWebSocket();
   const [loadingConversations, setLoadingConversations] =
     useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +33,39 @@ const Home: React.FC = () => {
   }, [userId]);
 
   useEffect(() => {
+    if (socket) {
+      socket.on("receive_message", (data: Message) => {
+        console.log("Message received:", data); // Log received message
+  
+        setConversations((prevConversations) =>
+          prevConversations.map((conversation) =>
+            conversation.id === data.conversationId
+              ? {
+                  ...conversation,
+                  lastMessage: {
+                    content: data.content,
+                    timestamp: data.timestamp,
+                    messageType: data.messageType,
+                  },
+                }
+              : conversation
+          )
+        );
+      });
+  
+      socket.on("new_conversation", fetchConversations);
+    }
+  
+    return () => {
+      if (socket) {
+        socket.off("receive_message");
+        socket.off("new_conversation");
+      }
+    };
+  }, [socket, fetchConversations]);
+  
+
+  useEffect(() => {
     if (userId) {
       fetchConversations();
     } else {
@@ -66,7 +84,6 @@ const Home: React.FC = () => {
 
   const renderedConversations = useMemo(() => {
     return conversations.map((conversation) => {
-      console.log("Conversation", conversation);
       const lastMessage = conversation.lastMessage;
 
       return (
@@ -75,7 +92,7 @@ const Home: React.FC = () => {
           to={`/conversation/${conversation.id}`}
           state={{
             profilePic: conversation.profilePic,
-            username: conversation.username
+            username: conversation.username,
           }}
           className="flex items-center p-3 rounded-lg"
         >

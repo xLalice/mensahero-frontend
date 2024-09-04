@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import api from "../services/api";
 import { useWebSocket } from "../contexts/WebSocketContext";
-import { Message } from "./Convo";
+import { Message } from "../utils/types";
 
 interface ConvoFormProps {
   conversationId: number | undefined;
@@ -21,20 +21,6 @@ const ConvoForm: React.FC<ConvoFormProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (socket) {
-      socket.on("receive_message", (data: Message) => {
-        setMessages((prevMessages) => [...prevMessages, data]);
-      });
-    }
-
-    return () => {
-      if (socket) {
-        socket.off("receive_message");
-      }
-    };
-  }, [socket, setMessages]);
-
-  useEffect(() => {
     return () => {
       if (imagePreview) {
         URL.revokeObjectURL(imagePreview);
@@ -47,15 +33,14 @@ const ConvoForm: React.FC<ConvoFormProps> = ({
     if ((!newMessage && !selectedImage) || !conversationId || !userId) return;
 
     const message: Message = {
-      id: Date.now(), // Temporary ID for optimistic update
+      id: Date.now(),
       content: newMessage,
       senderId: userId,
-      receiverId: -1, // Placeholder; update it with the actual receiver ID if necessary
+      conversationId: conversationId,
       timestamp: new Date(),
       messageType: selectedImage ? "image" : "text",
     };
 
-    // Optimistically add the message to the state
     setMessages((prevMessages) => [...prevMessages, message]);
 
     const formData = new FormData();
@@ -70,21 +55,20 @@ const ConvoForm: React.FC<ConvoFormProps> = ({
           "Content-Type": "multipart/form-data",
         },
       });
-      socket?.emit("send_message", response.data);
 
-      // After successful response, update the message ID and other details
+      socket?.emit("send_message", response.data, (ack: any) => {
+        console.log("Server acknowledgment:", ack);
+      });
+
       setMessages((prevMessages) =>
-        prevMessages.map((msg) =>
-          msg.id === message.id ? response.data : msg
-        )
+        prevMessages.map((msg) => (msg.id === message.id ? response.data : msg))
       );
-      
+
       setNewMessage("");
       setSelectedImage(null);
       removeSelectedImage();
     } catch (error: any) {
       console.error("Error sending message:", error);
-      // Optionally, you might want to handle the error by removing the optimistic message
       setMessages((prevMessages) =>
         prevMessages.filter((msg) => msg.id !== message.id)
       );
@@ -108,13 +92,13 @@ const ConvoForm: React.FC<ConvoFormProps> = ({
   };
 
   return (
-    <form onSubmit={sendMessage} className="flex flex-col">
-      <div className="flex items-center">
+    <form onSubmit={sendMessage} className="flex flex-col m-2">
+      <div className="flex items-center justify-between">
         <input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          className="flex-grow p-2 border rounded-xl"
+          className="flex-grow p-2 mr-2 border rounded-xl"
           placeholder="Type a message..."
         />
         <input

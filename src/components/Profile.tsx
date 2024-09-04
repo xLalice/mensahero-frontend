@@ -5,7 +5,7 @@ import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
 interface UserData {
-  _id: string;
+id: string;
   username: string;
   email: string;
   profilePic: string;
@@ -38,7 +38,7 @@ const UserProfile: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await api.put(`/users/${userData?._id}`, userData);
+      const response = await api.put(`/users/${userData?.id}`, userData);
       setUserData(response.data);
       setIsEditing(false);
     } catch (error) {
@@ -91,7 +91,7 @@ const UserProfile: React.FC = () => {
         alert('Please drop an image file');
       }
     } else {
-      console.log('No valid file found in the drop event');
+      console.log('No vaid file found in the drop event');
     }
   }, []);
 
@@ -101,7 +101,7 @@ const UserProfile: React.FC = () => {
     formData.append('profilePic', file);
   
     try {
-      const response = await api.put(`/users/${userData?._id}/profile-picture`, formData, {
+      const response = await api.put(`/users/${userData?.id}/profile-picture`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -128,7 +128,7 @@ const UserProfile: React.FC = () => {
             <label htmlFor="username" className="block mb-1">Username:</label>
             <input
               type="text"
-              id="username"
+            id="username"
               name="username"
               value={userData.username}
               onChange={handleInputChange}
@@ -139,7 +139,7 @@ const UserProfile: React.FC = () => {
             <label htmlFor="email" className="block mb-1">Email:</label>
             <input
               type="email"
-              id="email"
+            id="email"
               name="email"
               value={userData.email}
               onChange={handleInputChange}
@@ -158,7 +158,7 @@ const UserProfile: React.FC = () => {
                   handleFileUpload(e.target.files[0]);
                 }
               }}
-              className="hidden"
+              className="idden"
             />
             <button
               type="button"
@@ -174,14 +174,14 @@ const UserProfile: React.FC = () => {
       ) : (
         <div className="space-y-4 flex flex-col">
           <div 
-            className={`w-32 h-32 mx-auto  rounded-full overflow-hidden ${isDragging ? 'border-2 border-dashed border-blue-500' : ''}`}
+            className={`w-32 h-32 mx-auto  rounded-full overflow-idden ${isDragging ? 'border-2 border-dashed border-blue-500' : ''}`}
             onDragEnter={handleDragIn}
             onDragOver={handleDrag}
             onDragLeave={handleDragOut}
             onDrop={handleDrop}
           >
             <img 
-            src={`https://mensahero-backend.onrender.com/${userData.profilePic}?${new Date().getTime()}`}
+            src={userData.profilePic}
             alt="Profile Picture" 
             className="w-full h-full object-cover"
             onError={(e) => {

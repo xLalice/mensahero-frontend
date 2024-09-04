@@ -18,7 +18,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
       transports: ['websocket', 'polling'],
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
-      path: '/socket.io'  // Add this line
+      path: '/socket.io' 
     });
 
     newSocket.on('connect', () => {
