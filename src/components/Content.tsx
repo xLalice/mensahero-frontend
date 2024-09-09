@@ -6,7 +6,7 @@ import { formatTimeAgo } from "../utils/timeUtils";
 import { Link } from "react-router-dom";
 
 interface ContentProps {
-  selectedTab: "chats" | "users";
+  selectedTab: "chats" | "friends";
   conversations: Conversation[];
   loadingConversations: boolean;
   error: string | null;
@@ -34,19 +34,24 @@ const Content: React.FC<ContentProps> = ({
     const lastMessage = conversation.lastMessage;
     const isOnline = onlineUsers.has(conversation.userId!);
 
+    const isGroupChat = conversation.groupName;
+
     return (
       <Link
         key={conversation.id}
         to={`/conversation/${conversation.id}`}
-        state={{
-          profilePic: conversation.profilePic,
-          username: conversation.username,
-        }}
         className="flex items-center p-3 rounded-lg"
       >
-        <AvatarOnline profilePic={conversation.profilePic} isOnline={isOnline} />
+        <AvatarOnline
+          profilePic={
+            isGroupChat ? conversation.groupImage! : conversation.profilePic
+          }
+          isOnline={isOnline}
+        />
         <div className="flex-grow ml-4">
-          <h3 className="font-semibold mb-2">{conversation.username}</h3>
+          <h3 className="font-semibold mb-2">
+            {isGroupChat ? conversation.groupName! : conversation.username}
+          </h3>
           <p className="text-sm text-gray-600">
             {lastMessage
               ? lastMessage.messageType === "image"
@@ -68,11 +73,15 @@ const Content: React.FC<ContentProps> = ({
         <div>
           <h2 className="text-xl font-semibold mb-2">Recent Chats</h2>
           {loadingConversations ? (
-            <p className="text-gray-500 text-center mt-10">Loading conversations...</p>
+            <p className="text-gray-500 text-center mt-10">
+              Loading conversations...
+            </p>
           ) : error ? (
             <p className="text-red-500 text-center mt-10">{error}</p>
           ) : conversations.length === 0 ? (
-            <p className="text-gray-500 text-center mt-10">No recent chats. Chat someone now!</p>
+            <p className="text-gray-500 text-center mt-10">
+              No recent chats. Chat someone now!
+            </p>
           ) : (
             <div className="space-y-4">{renderedConversations}</div>
           )}

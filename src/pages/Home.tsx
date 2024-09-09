@@ -14,7 +14,7 @@ const Home: React.FC = () => {
   const [loadingConversations, setLoadingConversations] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
-  const [selectedTab, setSelectedTab] = useState<'chats' | 'users'>('chats');
+  const [selectedTab, setSelectedTab] = useState<'chats' | 'friends'>('chats');
   const { userId, logout } = useAuth();
   const onlineUsers = useOnlineUsers();
   const socket = useWebSocket();
@@ -26,7 +26,8 @@ const Home: React.FC = () => {
     setError(null);
 
     try {
-      const response = await api.get(`/conversations/user/${userId}`);
+      const response = await api.get(`/conversations/`);
+      console.log(response.data);
       setConversations(response.data);
     } catch (error) {
       setError('Error fetching conversations.');

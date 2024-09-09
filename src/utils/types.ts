@@ -23,6 +23,8 @@ export interface Conversation {
       messageType: string;
     };
     userId?: number;
+    groupImage?: string;
+    groupName?: string;
   }
 
   type MessageType = "text" | "image";

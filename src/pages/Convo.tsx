@@ -7,7 +7,7 @@ import ConvoForm from "../components/ConvoForm";
 import { formatTimeAgo } from "../utils/timeUtils";
 import { Message, Participant } from "../utils/types";
 import { useOnlineUsers } from "../contexts/OnlineUsersContext";
-import { AvatarOnline } from "../components/AvatarOnline"; 
+import { AvatarOnline } from "../components/AvatarOnline";
 
 const Convo: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -17,6 +17,8 @@ const Convo: React.FC = () => {
   const socket = useWebSocket();
   const onlineUsers = useOnlineUsers();
   const navigate = useNavigate();
+  const [groupName, setGroupName] = useState<string | null>(null);
+  const [groupImage, setGroupImage] = useState<string | null>(null);
 
   const fetchConversation = useCallback(async () => {
     if (!userId || !conversationId) {
@@ -28,16 +30,19 @@ const Convo: React.FC = () => {
       const { data } = await api.get<{
         participants: Participant[];
         messages: Message[];
+        groupName?: string;
+        groupImage?: string;
       }>(`/conversations/${conversationId}`);
 
-      if (!Array.isArray(data.participants) || data.participants.length !== 2) {
+      if (!Array.isArray(data.participants)) {
         console.error("Invalid participants data:", data.participants);
         return;
       }
-
-      console.log("Data:", data)
+      console.log(data);
       setParticipants(data.participants);
       setMessages(data.messages);
+      setGroupName(data.groupName || null);
+      setGroupImage(data.groupImage || null);
     } catch (error) {
       console.error("Error fetching conversation data:", error);
     }
@@ -65,18 +70,23 @@ const Convo: React.FC = () => {
     const alignmentClass = isCurrentUser
       ? "justify-end text-right"
       : "justify-start text-left";
-  
-    const senderProfilePic = participants.find(p => p.id === msg.senderId)?.profilePic || "/default.jpg";
-  
+
+    const sender = participants.find(p => p.id === msg.senderId);
+    const senderProfilePic = sender?.profilePic || "/default.jpg";
+    const senderName = sender?.username || "Unknown User";
+
     return (
       <div key={msg.id} className={`flex w-full gap-4 mb-4 ${alignmentClass}`}>
-        <img
-          src={senderProfilePic}
-          alt="Profile"
-          className={`rounded-full w-10 h-10 ${isCurrentUser ? "order-last" : ""} `}
-        />
-  
+        {!isCurrentUser && (
+          <img
+            src={senderProfilePic}
+            alt="Profile"
+            className="rounded-full w-10 h-10"
+          />
+        )}
+
         <div className={`flex flex-col ${isCurrentUser ? "items-end" : "items-start"}`}>
+          {!isCurrentUser && <span className="text-xs font-bold">{senderName}</span>}
           <div className={`inline-block max-w-xs rounded-lg overflow-hidden ${messageClass}`}>
             {msg.messageType === "text" ? (
               <p className="p-3">{msg.content}</p>
@@ -91,11 +101,24 @@ const Convo: React.FC = () => {
       </div>
     );
   };
-  
 
   const renderHeader = () => {
-    const recipient = participants.find(p => p.id !== userId);
+    if (groupName) {
+      return (
+        <div className="flex bg-gray-200 h-16 items-center p-4 gap-4">
+          <img
+            src="/back.png"
+            className="w-4 h-4 mr-4 cursor-pointer"
+            alt="Back"
+            onClick={() => navigate(-1)}
+          />
+          <AvatarOnline profilePic={groupImage || "/default.jpg"} isOnline={false} />
+          <h2 className="text-2xl font-bold">{groupName}</h2>
+        </div>
+      );
+    }
 
+    const recipient = participants.find(p => p.id !== userId);
     if (!recipient) return <div>Loading...</div>;
 
     return (
@@ -110,13 +133,11 @@ const Convo: React.FC = () => {
           profilePic={recipient.profilePic || "/default.jpg"}
           isOnline={onlineUsers.has(recipient.id)}
         />
-        <h2 className="text-2xl font-bold">
-          {recipient.username || "Unknown User"}
-        </h2>
+        <h2 className="text-2xl font-bold">{recipient.username || "Unknown User"}</h2>
       </div>
     );
   };
-  
+
   return (
     <div className="flex flex-col h-screen">
       {renderHeader()}
