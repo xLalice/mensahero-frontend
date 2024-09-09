@@ -4,6 +4,13 @@ export interface User {
     username: string;
     profilePic: string;
   }
+
+  export interface Participant {
+    id: number;
+    username: string;
+    profilePic: string;
+    conversationId: number;
+  }
   
 export interface Conversation {
     id: number;

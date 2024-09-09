@@ -1,8 +1,8 @@
 import React from 'react';
 
 interface TabsProps {
-  selectedTab: 'chats' | 'users';
-  onSelectTab: (tab: 'chats' | 'users') => void;
+  selectedTab: 'chats' | 'friends';
+  onSelectTab: (tab: 'chats' | 'friends') => void;
 }
 
 const Tabs: React.FC<TabsProps> = ({ selectedTab, onSelectTab }) => {
@@ -15,10 +15,10 @@ const Tabs: React.FC<TabsProps> = ({ selectedTab, onSelectTab }) => {
         Chats
       </button>
       <button
-        className={`py-2 px-4 ${selectedTab === 'users' ? 'border-b-2 border-blue-500 font-bold' : 'text-gray-600'}`}
-        onClick={() => onSelectTab('users')}
+        className={`py-2 px-4 ${selectedTab === 'friends' ? 'border-b-2 border-blue-500 font-bold' : 'text-gray-600'}`}
+        onClick={() => onSelectTab('friends')}
       >
-        Users
+        Friends
       </button>
     </div>
   );

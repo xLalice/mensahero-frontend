@@ -36,9 +36,3 @@ export function formatTimeAgo(timestamp: Date | string): string {
     const years = Math.floor(months / 12);
     return `${years}y ago`;
 }
-
-// Example usage
-console.log(formatTimeAgo(new Date())); // Output: "just now"
-console.log(formatTimeAgo(new Date(Date.now() - 3600 * 1000))); // Output: "1 hours ago"
-console.log(formatTimeAgo(new Date(Date.now() - 24 * 3600 * 1000))); // Output: "1 days ago"
-console.log(formatTimeAgo(new Date(Date.now() - 7 * 24 * 3600 * 1000))); // Output: "1w ago"

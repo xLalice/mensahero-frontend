@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { useWebSocket } from "../contexts/WebSocketContext";
+import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../contexts/AuthProvider";
 import { useOnlineUsers } from "../contexts/OnlineUsersContext";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { AvatarOnline } from "./AvatarOnline";
 
-interface Friend {
+interface User {
   id: number;
   username: string;
   profilePic: string;
@@ -14,31 +13,50 @@ interface Friend {
 }
 
 const FriendsList: React.FC = () => {
-  const [friends, setFriends] = useState<Friend[]>([]);
+  const [friends, setFriends] = useState<User[]>([]);
+  const [potentialFriends, setPotentialFriends] = useState<User[]>([]);
   const { userId } = useAuth();
   const onlineUsers = useOnlineUsers();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchFriends = async () => {
+    const fetchFriendsAndPotentialFriends = async () => {
       try {
-        const response = await api.get("/users/");
-        const sortedFriends = sortFriends(response.data, onlineUsers);
-        setFriends(sortedFriends);
+        const responseFriends = await api.get("/users/friends");
+        const responsePotentialFriends = await api.get(
+          "/users/potential-friends"
+        );
+
+        setFriends(responseFriends.data.friends || []);
+        setPotentialFriends(
+          responsePotentialFriends.data.potentialFriends || []
+        );
+        console.log(responsePotentialFriends);
       } catch (error) {
-        console.error("Error fetching friends:", error);
+        console.error("Error fetching friends or potential friends:", error);
       }
     };
 
-    fetchFriends();
-  }, [onlineUsers]);
+    fetchFriendsAndPotentialFriends();
+  }, [userId]);
 
-  const sortFriends = (list: Friend[], onlineUsers: Map<number, string>) => {
-    return list.map((friend) => ({
-      ...friend,
-      isOnline: onlineUsers.has(friend.id),
-    })).sort((a, b) => Number(b.isOnline) - Number(a.isOnline));
-  };
+  const sortedFriends = useMemo(() => {
+    return friends
+      .map((friend) => ({
+        ...friend,
+        isOnline: onlineUsers.has(friend.id),
+      }))
+      .sort((a, b) => Number(b.isOnline) - Number(a.isOnline));
+  }, [friends, onlineUsers]);
+
+  const sortedPotentialFriends = useMemo(() => {
+    return potentialFriends
+      .map((potentialFriend) => ({
+        ...potentialFriend,
+        isOnline: onlineUsers.has(potentialFriend.id),
+      }))
+      .sort((a, b) => Number(b.isOnline) - Number(a.isOnline));
+  }, [potentialFriends, onlineUsers]);
 
   const startNewConversation = async (
     otherUserId: number,
@@ -69,15 +87,33 @@ const FriendsList: React.FC = () => {
     }
   };
 
+  const handleAddFriend = async (friendId: number) => {
+    try {
+      await api.post("/users/add-friend", { friendId });
+
+      const addedFriend = potentialFriends.find((user) => user.id === friendId);
+
+      setPotentialFriends(
+        potentialFriends.filter((user) => user.id !== friendId)
+      );
+
+      if (addedFriend) {
+        setFriends([...friends, addedFriend]);
+      }
+    } catch (error) {
+      console.error("Error adding friend:", error);
+    }
+  };
+
   return (
-    <div className="p-4 overflow-scroll relative">
-      <h2 className="text-lg font-semibold mb-4 fixed">Friends</h2>
-      <div className="flex gap-4 mt-8">
-        {friends.length > 0 ? (
-          friends.map((friend) => (
+    <div className="p-4 overflow-auto bg-gray-100 min-h-screen">
+      <h2 className="text-xl font-bold mb-4">Friends</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {sortedFriends.length > 0 ? (
+          sortedFriends.map((friend) => (
             <div
               key={friend.id}
-              className="flex flex-col items-center justify-between p-2"
+              className="flex flex-col items-center bg-white p-4 rounded-lg shadow-md hover:bg-gray-50 transition cursor-pointer"
               onClick={() =>
                 startNewConversation(
                   friend.id,
@@ -91,13 +127,42 @@ const FriendsList: React.FC = () => {
                 profilePic={friend.profilePic}
                 isOnline={friend.isOnline}
               />
-              <span className="mt-2 text-center w-full truncate">
+              <span className="mt-2 text-center font-medium text-lg truncate">
                 {friend.username}
               </span>
             </div>
           ))
         ) : (
-          <h1>No other users yet.</h1>
+          <p className="text-center text-gray-600">No friends yet.</p>
+        )}
+      </div>
+      <h2 className="text-xl font-bold mb-4">Potential Friends</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {sortedPotentialFriends.length > 0 ? (
+          sortedPotentialFriends.map((potentialFriend) => (
+            <div
+              key={potentialFriend.id}
+              className="flex flex-col items-center bg-white p-4 rounded-lg shadow-md hover:bg-gray-50 transition"
+            >
+              <AvatarOnline
+                profilePic={potentialFriend.profilePic}
+                isOnline={potentialFriend.isOnline}
+              />
+              <span className="mt-2 text-center font-medium text-lg truncate">
+                {potentialFriend.username}
+              </span>
+              <button
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                onClick={() => handleAddFriend(potentialFriend.id)}
+              >
+                Add Friend
+              </button>
+            </div>
+          ))
+        ) : (
+          <p className="text-center text-gray-600">
+            No potential friends available.
+          </p>
         )}
       </div>
     </div>
@@ -105,3 +170,4 @@ const FriendsList: React.FC = () => {
 };
 
 export default FriendsList;
+``;

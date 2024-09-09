@@ -1,20 +1,18 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../contexts/AuthProvider";
 import { useWebSocket } from "../contexts/WebSocketContext";
 import ConvoForm from "../components/ConvoForm";
 import { formatTimeAgo } from "../utils/timeUtils";
-import { Message } from "../utils/types";
+import { Message, Participant } from "../utils/types";
 import { useOnlineUsers } from "../contexts/OnlineUsersContext";
 import { AvatarOnline } from "../components/AvatarOnline"; 
 
 const Convo: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const location = useLocation();
-  const { profilePic, username } = location.state || {};
   const { conversationId } = useParams<{ conversationId: string }>();
-  const [participants, setParticipants] = useState<{ userId: number, conversationId: number }[]>([]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const { userId } = useAuth();
   const socket = useWebSocket();
   const onlineUsers = useOnlineUsers();
@@ -28,7 +26,7 @@ const Convo: React.FC = () => {
 
     try {
       const { data } = await api.get<{
-        participants: { userId: number; conversationId: number }[];
+        participants: Participant[];
         messages: Message[];
       }>(`/conversations/${conversationId}`);
 
@@ -37,6 +35,7 @@ const Convo: React.FC = () => {
         return;
       }
 
+      console.log("Data:", data)
       setParticipants(data.participants);
       setMessages(data.messages);
     } catch (error) {
@@ -64,18 +63,18 @@ const Convo: React.FC = () => {
       ? "bg-blue-500 text-white"
       : "bg-gray-200 text-black";
     const alignmentClass = isCurrentUser
-      ? "justify-end text-right gap-4"
+      ? "justify-end text-right"
       : "justify-start text-left";
   
+    const senderProfilePic = participants.find(p => p.id === msg.senderId)?.profilePic || "/default.jpg";
+  
     return (
-      <div key={msg.id} className={`flex w-full mb-4 ${alignmentClass}`}>
-        {!isCurrentUser && (
-          <img
-            src={profilePic}
-            alt="Profile"
-            className="rounded-full w-10 h-10 mr-3 self-start"
-          />
-        )}
+      <div key={msg.id} className={`flex w-full gap-4 mb-4 ${alignmentClass}`}>
+        <img
+          src={senderProfilePic}
+          alt="Profile"
+          className={`rounded-full w-10 h-10 ${isCurrentUser ? "order-last" : ""} `}
+        />
   
         <div className={`flex flex-col ${isCurrentUser ? "items-end" : "items-start"}`}>
           <div className={`inline-block max-w-xs rounded-lg overflow-hidden ${messageClass}`}>
@@ -89,20 +88,17 @@ const Convo: React.FC = () => {
             {formatTimeAgo(msg.timestamp)}
           </span>
         </div>
-  
-        {isCurrentUser && (
-          <img
-            src={profilePic}
-            alt="Profile"
-            className="rounded-full w-10 h-10 mr-3 self-start"
-          />
-        )}
       </div>
     );
   };
   
-  return (
-    <div className="flex flex-col h-screen">
+
+  const renderHeader = () => {
+    const recipient = participants.find(p => p.id !== userId);
+
+    if (!recipient) return <div>Loading...</div>;
+
+    return (
       <div className="flex bg-gray-200 h-16 items-center p-4 gap-4">
         <img
           src="/back.png"
@@ -111,13 +107,19 @@ const Convo: React.FC = () => {
           onClick={() => navigate(-1)}
         />
         <AvatarOnline
-          profilePic={profilePic}
-          isOnline={onlineUsers.has(conversationId ? participants[0]?.userId : 0)}
+          profilePic={recipient.profilePic || "/default.jpg"}
+          isOnline={onlineUsers.has(recipient.id)}
         />
         <h2 className="text-2xl font-bold">
-          {username || "Loading..."}
+          {recipient.username || "Unknown User"}
         </h2>
       </div>
+    );
+  };
+  
+  return (
+    <div className="flex flex-col h-screen">
+      {renderHeader()}
       <div className="flex-grow overflow-y-scroll mb-4 p-4">
         {messages.map(renderMessage)}
       </div>
