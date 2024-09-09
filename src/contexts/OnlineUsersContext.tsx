@@ -29,6 +29,14 @@ export const OnlineUsersProvider: React.FC<OnlineUsersProviderProps> = ({ childr
         });
       };
 
+      const handleBeforeUnload = () => {
+        if (socket) {
+          socket.emit("user_disconnect", userId);
+        }
+      }
+
+      window.addEventListener("beforeunload", handleBeforeUnload);
+
       socket.on('update_online_users', handleUpdateOnlineUsers);
       socket.on('user_disconnected', handleUserDisconnected);
 
