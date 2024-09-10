@@ -1,11 +1,10 @@
-// src/components/UserProfile.tsx
-
-import React, { useState, useEffect, useCallback } from 'react';
-import api from '../services/api';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from "react";
+import api from "../services/api";
+import { useNavigate } from "react-router-dom";
+import Loading from "../components/Loading";
 
 interface UserData {
-id: string;
+  id: string;
   username: string;
   email: string;
   profilePic: string;
@@ -20,19 +19,22 @@ const UserProfile: React.FC = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await api.get('/users/profile');
+        const response = await api.get("/users/profile");
         setUserData(response.data);
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error("Error fetching user data:", error);
       }
     };
-
     fetchUserData();
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setUserData(prevData => prevData ? { ...prevData, [name]: value } : null);
+    setUserData((prevData) =>
+      prevData ? { ...prevData, [name]: value } : null
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,7 +44,25 @@ const UserProfile: React.FC = () => {
       setUserData(response.data);
       setIsEditing(false);
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error);
+    }
+  };
+
+  const handleFileUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append("profilePic", file);
+    try {
+      const response = await api.put(
+        `/users/${userData?.id}/profile-picture`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      setUserData(response.data);
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
+      alert("Error uploading profile picture. Please try again.");
     }
   };
 
@@ -51,142 +71,140 @@ const UserProfile: React.FC = () => {
     e.stopPropagation();
   }, []);
 
-  const handleDragIn = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragOut = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  }, []);
-
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    console.log('File dropped');
-
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      if (file.type.startsWith('image/')) {
-        handleFileUpload(file);
-      } else {
-        alert('Please drop an image file');
-      }
-    } else if (e.dataTransfer.items && e.dataTransfer.items[0]) {
-      const item = e.dataTransfer.items[0];
-      if (item.kind === 'file' && item.type.startsWith('image/')) {
-        const file = item.getAsFile();
-        if (file) {
-          handleFileUpload(file);
-        }
-      } else {
-        alert('Please drop an image file');
-      }
+      handleFileUpload(e.dataTransfer.files[0]);
     } else {
-      console.log('No vaid file found in the drop event');
+      alert("Please drop an image file");
     }
   }, []);
 
-  const handleFileUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append('profilePic', file);
-  
-    try {
-      const response = await api.put(`/users/${userData?.id}/profile-picture`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      setUserData(response.data);
-    } catch (error) {
-      console.error('Error uploading profile picture:', error);
-      alert('Error uploading profile picture. Please try again.');
-    }
-  };
-
-  if (!userData) return <div>Loading...</div>;
+  if (!userData) return <Loading width={64} height={64} />;
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-4">
-      <div className="flex items-center mb-4">
-        <img className="" src="/back.png" alt="" onClick={() => navigate(-1)} />
-        <h2 className="text-3xl font-bold mb-2 ml-2">User Profile</h2>
+    <div className="max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg h-screen">
+      <div className="flex items-center mb-6">
+        <img
+          className="w-6 cursor-pointer"
+          src="/back.png"
+          alt="Back"
+          onClick={() => navigate(-1)}
+        />
+        <h2 className="text-3xl font-bold ml-4">User Profile</h2>
       </div>
       {isEditing ? (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="username" className="block mb-1">Username:</label>
-            <input
-              type="text"
-            id="username"
-              name="username"
-              value={userData.username}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded"
+        <form onSubmit={handleSubmit} className="space-y-4 flex flex-col">
+          <div className="relative inline-block self-center">
+            <img
+              src={userData.profilePic}
+              alt="Profile"
+              className="w-32 h-32 rounded-full object-cover"
             />
-          </div>
-          <div>
-            <label htmlFor="email" className="block mb-1">Email:</label>
-            <input
-              type="email"
-            id="email"
-              name="email"
-              value={userData.email}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label htmlFor="profilePic" className="inline-block mr-2  ">Profile Picture:</label>
             <input
               type="file"
               id="profilePic"
               name="profilePic"
               accept="image/*"
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  handleFileUpload(e.target.files[0]);
-                }
-              }}
-              className="idden"
+              className="hidden"
+              onChange={(e) =>
+                e.target.files && handleFileUpload(e.target.files[0])
+              }
             />
             <button
               type="button"
-              onClick={() => document.getElementById('profilePic')?.click()}
-              className="bg-green-500 text-white p-2 rounded"
+              onClick={() => document.getElementById("profilePic")?.click()}
+              className="absolute bottom-0 right-0 bg-green-500 text-white p-2 rounded-full"
             >
-              Upload Image
+              <img src="/upload.png" alt="" className="w-4 h-4"/>
             </button>
           </div>
-          <button type="submit" className="bg-blue-500 text-white p-2 rounded">Save Changes</button>
-          <button type="button" onClick={() => setIsEditing(false)} className="ml-2 bg-gray-300 p-2 rounded">Cancel</button>
+
+          <div>
+            <label htmlFor="username" className="block mb-1 font-semibold">
+              Username:
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={userData.username}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label htmlFor="email" className="block mb-1 font-semibold">
+              Email:
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={userData.email}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="flex">
+            <button
+              type="submit"
+              className="bg-blue-500 text-white p-2 rounded flex-grow"
+            >
+              Save Changes
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              className="ml-2 bg-gray-300 p-2 rounded flex-grow"
+            >
+              Cancel
+            </button>
+          </div>
         </form>
       ) : (
-        <div className="space-y-4 flex flex-col">
-          <div 
-            className={`w-32 h-32 mx-auto  rounded-full overflow-idden ${isDragging ? 'border-2 border-dashed border-blue-500' : ''}`}
-            onDragEnter={handleDragIn}
+        <div className="space-y-6">
+          <div
+            className={`relative w-32 h-32 mx-auto rounded-full overflow-hidden ${
+              isDragging ? "border-2 border-dashed border-blue-500" : ""
+            }`}
+            onDragEnter={handleDrag}
             onDragOver={handleDrag}
-            onDragLeave={handleDragOut}
+            onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
           >
-            <img 
-            src={userData.profilePic}
-            alt="Profile Picture" 
-            className="w-full h-full object-cover"
-            onError={(e) => {
+            <img
+              src={userData.profilePic}
+              alt="Profile"
+              className="w-full h-full object-cover"
+              onError={(e) => {
                 const img = e.target as HTMLImageElement;
-                img.src = '/default.jpg';
+                img.src = "/default.jpg";
                 img.onerror = null;
-            }} />
+              }}
+            />
           </div>
-          <p><strong>Username:</strong> {userData.username}</p>
-          <p><strong>Email:</strong> {userData.email}</p>
-          <button onClick={() => setIsEditing(true)} className="bg-blue-500 text-white p-2 rounded mx-auto">Edit Profile</button>
+          <div className=" flex flex-col">
+            <h3 className=" text-lg">Username:</h3>
+            <p className="bg-gray-300 p-2 rounded-md font-bold">
+              {" "}
+              {userData.username}
+            </p>
+            <h3 className=" text-lg">Email:</h3>
+            <p className=" bg-gray-300 p-2 rounded-md font-bold">
+              {" "}
+              {userData.email}
+            </p>
+          </div>
+          <button
+            onClick={() => setIsEditing(true)}
+            className="bg-blue-500 text-white p-2 rounded mx-auto block"
+          >
+            Edit Profile
+          </button>
         </div>
       )}
     </div>
