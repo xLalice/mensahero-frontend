@@ -1,8 +1,10 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import Header from '../components/Header';
 import Tabs from '../components/Tabs';
 import Content from '../components/Content';
+import { useTheme } from '../contexts/theme/ThemeContext';
+import { useNavigate } from 'react-router-dom';
+import { useState, useCallback, useEffect } from 'react';
 import api from '../services/api';
 import { useWebSocket } from '../contexts/WebSocketContext';
 import { Conversation, Message } from '../utils/types';
@@ -89,9 +91,19 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <Header toggleDropdown={toggleDropdown} dropdownVisible={dropdownVisible} handleLogout={handleLogout} />
-      <Tabs selectedTab={selectedTab} onSelectTab={setSelectedTab} />
+    <div
+      className="min-h-screen p-4"
+    >
+      <Header 
+        toggleDropdown={toggleDropdown} 
+        dropdownVisible={dropdownVisible} 
+        handleLogout={handleLogout} 
+      />
+      
+      <Tabs 
+        selectedTab={selectedTab} 
+        onSelectTab={setSelectedTab} 
+      />
       <Content
         selectedTab={selectedTab}
         conversations={conversations}

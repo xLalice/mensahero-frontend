@@ -93,12 +93,12 @@ const ConvoForm: React.FC<ConvoFormProps> = ({
 
   return (
     <form onSubmit={sendMessage} className="flex flex-col m-2">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between p-2 bg-[var(--card-color)] border border-[var(--text-color)] rounded-lg shadow-md">
         <input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          className="flex-grow p-2 mr-2 border rounded-xl"
+          className="flex-grow p-2 border rounded-[0.3rem] bg-[var(--background-color)] text-[var(--text-color)]"
           placeholder="Type a message..."
         />
         <input
@@ -111,11 +111,11 @@ const ConvoForm: React.FC<ConvoFormProps> = ({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="bg-gray-300 p-2 rounded mr-2"
+          className="bg-[var(--primary-color)] p-2 rounded mr-2 text-white"
         >
           📎
         </button>
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded-r">
+        <button type="submit" className="bg-[var(--primary-color)] text-white p-2 rounded-r">
           Send
         </button>
       </div>

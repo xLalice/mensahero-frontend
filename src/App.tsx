@@ -1,3 +1,4 @@
+// App.tsx
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -9,50 +10,53 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthProvider";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
 import { OnlineUsersProvider } from "./contexts/OnlineUsersContext";
+import { ThemeProvider } from "./contexts/theme/ThemeContext";
 
 function App() {
   return (
     <AuthProvider>
       <WebSocketProvider>
         <OnlineUsersProvider>
-          <Router>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Home />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/conversation/:conversationId"
-                element={
-                  <ProtectedRoute>
-                    <Convo />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/group-chat"
-                element={
-                  <ProtectedRoute>
-                    <CreateGroupChat/>
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </Router>
+          <ThemeProvider>
+            <Router>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <Home />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/conversation/:conversationId"
+                  element={
+                    <ProtectedRoute>
+                      <Convo />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/group-chat"
+                  element={
+                    <ProtectedRoute>
+                      <CreateGroupChat />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </Router>
+          </ThemeProvider>
         </OnlineUsersProvider>
       </WebSocketProvider>
     </AuthProvider>

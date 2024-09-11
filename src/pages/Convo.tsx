@@ -8,6 +8,7 @@ import { formatTimeAgo } from "../utils/timeUtils";
 import { Message, Participant } from "../utils/types";
 import { useOnlineUsers } from "../contexts/OnlineUsersContext";
 import { AvatarOnline } from "../components/AvatarOnline";
+import Loading from "../components/Loading";
 
 const Convo: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -65,8 +66,8 @@ const Convo: React.FC = () => {
   const renderMessage = (msg: Message) => {
     const isCurrentUser = msg.senderId === userId;
     const messageClass = isCurrentUser
-      ? "bg-blue-500 text-white"
-      : "bg-gray-200 text-black";
+      ? `bg-[var(--primary-color)] text-white`
+      : `bg-[var(--card-color)] text-[var(--text-color)]`;
     const alignmentClass = isCurrentUser
       ? "justify-end text-right"
       : "justify-start text-left";
@@ -105,7 +106,7 @@ const Convo: React.FC = () => {
   const renderHeader = () => {
     if (groupName) {
       return (
-        <div className="flex bg-gray-200 h-16 items-center p-4 gap-4">
+        <div className="flex bg-[var(--primary-color)] h-16 items-center p-4 gap-4">
           <img
             src="/back.png"
             className="w-4 h-4 mr-4 cursor-pointer"
@@ -119,10 +120,10 @@ const Convo: React.FC = () => {
     }
 
     const recipient = participants.find(p => p.id !== userId);
-    if (!recipient) return <div>Loading...</div>;
+    if (!recipient) return <Loading height={64} width={64}/>;
 
     return (
-      <div className="flex bg-gray-200 h-16 items-center p-4 gap-4">
+      <div className="flex bg-[var(--card-color)] h-16 items-center p-4 gap-4">
         <img
           src="/back.png"
           className="w-4 h-4 mr-4 cursor-pointer"
@@ -139,7 +140,7 @@ const Convo: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen bg-[var(--background-color)] text-[var(--text-color)]">
       {renderHeader()}
       <div className="flex-grow overflow-y-scroll mb-4 p-4">
         {messages.map(renderMessage)}

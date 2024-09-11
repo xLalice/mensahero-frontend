@@ -85,7 +85,7 @@ const UserProfile: React.FC = () => {
   if (!userData) return <Loading width={64} height={64} />;
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg h-screen">
+    <div className="max-w-lg mx-auto p-6 bg-[var(--card-color)] shadow-lg rounded-lg h-screen">
       <div className="flex items-center mb-6">
         <img
           className="w-6 cursor-pointer"
@@ -93,7 +93,9 @@ const UserProfile: React.FC = () => {
           alt="Back"
           onClick={() => navigate(-1)}
         />
-        <h2 className="text-3xl font-bold ml-4">User Profile</h2>
+        <h2 className="text-3xl font-bold ml-4">
+          User Profile
+        </h2>
       </div>
       {isEditing ? (
         <form onSubmit={handleSubmit} className="space-y-4 flex flex-col">
@@ -116,9 +118,9 @@ const UserProfile: React.FC = () => {
             <button
               type="button"
               onClick={() => document.getElementById("profilePic")?.click()}
-              className="absolute bottom-0 right-0 bg-green-500 text-white p-2 rounded-full"
+              className="absolute bottom-0 right-0 bg-[var(--primary-color)] text-white p-2 rounded-full"
             >
-              <img src="/upload.png" alt="" className="w-4 h-4"/>
+              <img src="/upload.png" alt="" className="w-4 h-4" />
             </button>
           </div>
 
@@ -132,7 +134,7 @@ const UserProfile: React.FC = () => {
               name="username"
               value={userData.username}
               onChange={handleInputChange}
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] bg-[var(--background-color)]"
             />
           </div>
           <div>
@@ -145,21 +147,21 @@ const UserProfile: React.FC = () => {
               name="email"
               value={userData.email}
               onChange={handleInputChange}
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] bg-[var(--background-color)]"
             />
           </div>
 
           <div className="flex">
             <button
               type="submit"
-              className="bg-blue-500 text-white p-2 rounded flex-grow"
+              className="bg-[var(--primary-color)] text-white p-2 rounded flex-grow"
             >
               Save Changes
             </button>
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              className="ml-2 bg-gray-300 p-2 rounded flex-grow"
+              className="ml-2 bg-[var(--background-color)] p-2 rounded flex-grow"
             >
               Cancel
             </button>
@@ -169,7 +171,7 @@ const UserProfile: React.FC = () => {
         <div className="space-y-6">
           <div
             className={`relative w-32 h-32 mx-auto rounded-full overflow-hidden ${
-              isDragging ? "border-2 border-dashed border-blue-500" : ""
+              isDragging ? "border-2 border-dashed border-[var(--primary-color)]" : ""
             }`}
             onDragEnter={handleDrag}
             onDragOver={handleDrag}
@@ -187,21 +189,19 @@ const UserProfile: React.FC = () => {
               }}
             />
           </div>
-          <div className=" flex flex-col">
-            <h3 className=" text-lg">Username:</h3>
-            <p className="bg-gray-300 p-2 rounded-md font-bold">
-              {" "}
+          <div className="flex flex-col">
+            <h3 className="text-lg">Username:</h3>
+            <p className="bg-[var(--card-color)] p-2 rounded-md font-bold">
               {userData.username}
             </p>
-            <h3 className=" text-lg">Email:</h3>
-            <p className=" bg-gray-300 p-2 rounded-md font-bold">
-              {" "}
+            <h3 className="text-lg">Email:</h3>
+            <p className="bg-[var(--card-color)] p-2 rounded-md font-bold">
               {userData.email}
             </p>
           </div>
           <button
             onClick={() => setIsEditing(true)}
-            className="bg-blue-500 text-white p-2 rounded mx-auto block"
+            className="bg-[var(--primary-color)] text-white p-2 rounded mx-auto block"
           >
             Edit Profile
           </button>

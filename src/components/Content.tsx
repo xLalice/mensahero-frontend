@@ -40,7 +40,7 @@ const Content: React.FC<ContentProps> = ({
       <Link
         key={conversation.id}
         to={`/conversation/${conversation.id}`}
-        className="flex items-center p-3 rounded-lg"
+        className="flex items-center p-3 rounded-lg hover:bg-[var(--primary-color)]"
       >
         <AvatarOnline
           profilePic={
@@ -49,10 +49,10 @@ const Content: React.FC<ContentProps> = ({
           isOnline={isOnline}
         />
         <div className="flex-grow ml-4">
-          <h3 className="font-semibold mb-2">
+          <h3 className="font-bold mb-2 text-xl">
             {isGroupChat ? conversation.groupName! : conversation.username}
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm">
             {lastMessage
               ? lastMessage.messageType === "image"
                 ? "Sent an image"
@@ -71,7 +71,6 @@ const Content: React.FC<ContentProps> = ({
     <>
       {selectedTab === "chats" ? (
         <div>
-          <h2 className="text-xl font-semibold mb-2">Recent Chats</h2>
           {loadingConversations ? (
             <p className="text-gray-500 text-center mt-10">
               Loading conversations...
