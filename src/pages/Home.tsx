@@ -2,7 +2,6 @@ import React from 'react';
 import Header from '../components/Header';
 import Tabs from '../components/Tabs';
 import Content from '../components/Content';
-import { useTheme } from '../contexts/theme/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import { useState, useCallback, useEffect } from 'react';
 import api from '../services/api';

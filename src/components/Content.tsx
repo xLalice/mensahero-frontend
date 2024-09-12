@@ -20,7 +20,7 @@ const Content: React.FC<ContentProps> = ({
   error,
   onlineUsers,
 }) => {
-  const [currentTime, setCurrentTime] = useState(Date.now());
+  const [, setCurrentTime] = useState(Date.now());
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -33,14 +33,13 @@ const Content: React.FC<ContentProps> = ({
   const renderedConversations = conversations.map((conversation) => {
     const lastMessage = conversation.lastMessage;
     const isOnline = onlineUsers.has(conversation.userId!);
-
     const isGroupChat = conversation.groupName;
 
     return (
       <Link
         key={conversation.id}
         to={`/conversation/${conversation.id}`}
-        className="flex items-center p-3 rounded-lg hover:bg-[var(--primary-color)]"
+        className="flex items-center p-3 rounded-lg hover:bg-[var(--primary-color)] transition-colors"
       >
         <AvatarOnline
           profilePic={
@@ -49,10 +48,10 @@ const Content: React.FC<ContentProps> = ({
           isOnline={isOnline}
         />
         <div className="flex-grow ml-4">
-          <h3 className="font-bold mb-2 text-xl">
+          <h3 className="font-bold text-base md:text-xl mb-1 md:mb-2">
             {isGroupChat ? conversation.groupName! : conversation.username}
           </h3>
-          <p className="text-sm">
+          <p className="text-xs md:text-sm text-gray-500 truncate">
             {lastMessage
               ? lastMessage.messageType === "image"
                 ? "Sent an image"
@@ -60,7 +59,7 @@ const Content: React.FC<ContentProps> = ({
               : "No messages yet"}
           </p>
         </div>
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-gray-400">
           {lastMessage ? formatTimeAgo(lastMessage.timestamp) : ""}
         </span>
       </Link>
@@ -82,7 +81,7 @@ const Content: React.FC<ContentProps> = ({
               No recent chats. Chat someone now!
             </p>
           ) : (
-            <div className="space-y-4">{renderedConversations}</div>
+            <div className="space-y-2 md:space-y-4">{renderedConversations}</div>
           )}
         </div>
       ) : (

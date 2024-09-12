@@ -1,11 +1,9 @@
-// FriendsList.tsx
 import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../contexts/AuthProvider";
 import { useOnlineUsers } from "../contexts/OnlineUsersContext";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { AvatarOnline } from "./AvatarOnline";
-import { useTheme } from "../contexts/theme/ThemeContext"; // Import the hook
 
 interface User {
   id: number;
@@ -29,7 +27,6 @@ const FriendsList: React.FC = () => {
 
         setFriends(responseFriends.data.friends || []);
         setPotentialFriends(responsePotentialFriends.data.potentialFriends || []);
-        console.log(responsePotentialFriends);
       } catch (error) {
         console.error("Error fetching friends or potential friends:", error);
       }
@@ -99,14 +96,14 @@ const FriendsList: React.FC = () => {
   };
 
   return (
-    <div className="p-4 overflow-auto min-h-screen ">
-      <h2 className="text-xl font-bold mb-4">Friends</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+    <div className="p-4 overflow-auto min-h-screen">
+      <h2 className="text-lg md:text-xl font-bold mb-4">Friends</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         {sortedFriends.length > 0 ? (
           sortedFriends.map((friend) => (
             <div
               key={friend.id}
-              className="flex flex-col items-center p-4 rounded-lg shadow-md transition bg-[var(--card-color)] hover:bg-[var(--primary-color)] cursor-pointer"
+              className="flex items-center p-4 rounded-lg shadow-sm bg-[var(--card-color)] transition hover:bg-[var(--primary-color)] cursor-pointer"
               onClick={() =>
                 startNewConversation(
                   friend.id,
@@ -116,36 +113,38 @@ const FriendsList: React.FC = () => {
                 )
               }
             >
-              <AvatarOnline
-                profilePic={friend.profilePic}
-                isOnline={friend.isOnline}
-              />
-              <span className="mt-2 text-center font-medium text-lg truncate">
-                {friend.username}
-              </span>
+              <AvatarOnline profilePic={friend.profilePic} isOnline={friend.isOnline} />
+              <div className="ml-4 flex-grow">
+                <h3 className="font-semibold text-sm sm:text-base">{friend.username}</h3>
+                <p className={`text-xs sm:text-sm ${friend.isOnline ? "text-green-500" : "text-gray-500"}`}>
+                  {friend.isOnline ? "Online" : "Offline"}
+                </p>
+              </div>
+              <button className="text-sm text-blue-500 hover:text-blue-700">Message</button>
             </div>
           ))
         ) : (
           <p className="text-center text-gray-600">No friends yet.</p>
         )}
       </div>
-      <h2 className="text-xl font-bold mb-4">Potential Friends</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+      <h2 className="text-lg md:text-xl font-bold mb-4">Potential Friends</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {sortedPotentialFriends.length > 0 ? (
           sortedPotentialFriends.map((potentialFriend) => (
             <div
               key={potentialFriend.id}
-              className="flex flex-col items-center p-4 rounded-lg shadow-md bg-[var(--card-color)] transition hover:bg-[var(--primary-color)]"
+              className="flex items-center p-4 rounded-lg shadow-sm bg-[var(--card-color)] transition hover:bg-[var(--primary-color)]"
             >
-              <AvatarOnline
-                profilePic={potentialFriend.profilePic}
-                isOnline={potentialFriend.isOnline}
-              />
-              <span className="mt-2 text-center font-medium text-lg truncate">
-                {potentialFriend.username}
-              </span>
+              <AvatarOnline profilePic={potentialFriend.profilePic} isOnline={potentialFriend.isOnline} />
+              <div className="ml-4 flex-grow">
+                <h3 className="font-semibold text-sm sm:text-base">{potentialFriend.username}</h3>
+                <p className={`text-xs sm:text-sm ${potentialFriend.isOnline ? "text-green-500" : "text-gray-500"}`}>
+                  {potentialFriend.isOnline ? "Online" : "Offline"}
+                </p>
+              </div>
               <button
-                className="mt-4 px-4 py-2 rounded transition bg-[var(--primary-color)]  hover:bg-[var(--card-color)]"
+                className="text-sm bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-700"
                 onClick={() => handleAddFriend(potentialFriend.id)}
               >
                 Add Friend
@@ -153,9 +152,7 @@ const FriendsList: React.FC = () => {
             </div>
           ))
         ) : (
-          <p className="text-center text-gray-600">
-            No potential friends available.
-          </p>
+          <p className="text-center text-gray-600">No potential friends available.</p>
         )}
       </div>
     </div>

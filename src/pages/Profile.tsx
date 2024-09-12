@@ -85,7 +85,7 @@ const UserProfile: React.FC = () => {
   if (!userData) return <Loading width={64} height={64} />;
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-[var(--card-color)] shadow-lg rounded-lg h-screen">
+    <div className=" mx-auto p-6 bg-[var(--card-color)] shadow-lg rounded-lg h-screen">
       <div className="flex items-center mb-6">
         <img
           className="w-6 cursor-pointer"

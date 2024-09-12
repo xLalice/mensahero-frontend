@@ -13,7 +13,7 @@ const Header: React.FC<HeaderProps> = ({ toggleDropdown, dropdownVisible, handle
   const {themeType} = useTheme();
   return (
     <div className="flex  items-center h-16">
-      <img src="/header.png" className="w-[150px]" alt="Header" />
+      <img src="/header.png" className="w-[200px]" alt="Header" />
       <div className='ml-auto mr-6'>
           <ThemeToggle /> 
         </div>

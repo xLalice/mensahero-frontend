@@ -17,7 +17,7 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [themeType, setThemeType] = useState<ThemeType>('light');
+  const [themeType, setThemeType] = useState<ThemeType>('dark');
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as ThemeType | null;

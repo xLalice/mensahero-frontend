@@ -98,7 +98,7 @@ const ConvoForm: React.FC<ConvoFormProps> = ({
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          className="flex-grow p-2 border rounded-[0.3rem] bg-[var(--background-color)] text-[var(--text-color)]"
+          className="flex-grow p-2 border rounded-[0.3rem] mr-2 bg-[var(--background-color)] text-[var(--text-color)]"
           placeholder="Type a message..."
         />
         <input
