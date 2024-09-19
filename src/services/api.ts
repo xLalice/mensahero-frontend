@@ -5,17 +5,16 @@ const api = axios.create({
   withCredentials: true,
 });
 
-export const setupAxiosInterceptors = (navigate: Function) => {
-  api.interceptors.response.use(
-    response => response,
-    error => {
-      if (error.response && error.response.status === 401) {
-        navigate("/login");
-        alert("Session expired. Please log in again");
-      }
-      return Promise.reject(error);
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response && error.response.status === 401){
+      alert("Session expired. Please log in again");
     }
-  );
-};
+    return Promise.reject(error);
+  }
+);
+
+
 
 export default api;
