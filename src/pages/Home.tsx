@@ -4,7 +4,7 @@ import Tabs from '../components/Tabs';
 import Content from '../components/Content';
 import { useNavigate } from 'react-router-dom';
 import { useState, useCallback, useEffect } from 'react';
-import api from '../services/api';
+import api, {setupAxiosInterceptors} from '../services/api';
 import { useWebSocket } from '../contexts/WebSocketContext';
 import { Conversation, Message } from '../utils/types';
 import { useOnlineUsers } from '../contexts/OnlineUsersContext';
@@ -79,6 +79,10 @@ const Home: React.FC = () => {
       console.error('No user ID');
     }
   }, [userId, fetchConversations]);
+
+  useEffect(() => {
+    setupAxiosInterceptors(navigate);
+  }, [navigate]);
 
   const toggleDropdown = () => {
     setDropdownVisible(prev => !prev);
