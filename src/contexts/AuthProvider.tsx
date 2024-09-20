@@ -1,10 +1,12 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import api from '../services/api';
+import { AxiosError } from 'axios';
 
 interface AuthContextType {
   userId: number | null;
   setUserId: (userId: number | null) => void;
   isLoading: boolean;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -14,47 +16,50 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedUserId = localStorage.getItem('userId');
-    if (storedUserId) {
-      setUserId(parseInt(storedUserId));
-      setIsLoading(false);
-    } else {
-      fetch('/users/user', {
-        method: 'GET',
-        credentials: 'include',
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.id) {
-          localStorage.setItem('userId', data.id);
-          setUserId(data.id);
+    const checkStoredUserId = async () => {
+      const storedUserId = localStorage.getItem('userId');
+      if (storedUserId) {
+        setUserId(parseInt(storedUserId, 10));
+        setIsLoading(false);
+      } else {
+        try {
+          const response = await api.get('/users/user');
+          const data = response.data;
+          if (data.id) {
+            localStorage.setItem('userId', data.id.toString());
+            setUserId(data.id);
+          }
+        } catch (error) {
+          console.error('Error fetching user:', error);
+        } finally {
+          setIsLoading(false);
         }
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setIsLoading(false);
-      });
-    }
+      }
+    };
+    checkStoredUserId();
   }, []);
 
   const setUserIdHandler = (userId: number | null) => {
     if (userId) {
-      localStorage.setItem('userId', String(userId));
+      localStorage.setItem('userId', userId.toString());
     } else {
       localStorage.removeItem('userId');
     }
     setUserId(userId);
   };
 
-  const logout = () => {
-    fetch('/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    })
-    .then(() => {
+  const logout = async (): Promise<void> => {
+    try {
+      await api.post('/auth/logout');
       localStorage.removeItem('userId');
       setUserId(null);
-    });
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error('Logout failed:', error.response?.data?.message || error.message);
+      } else {
+        console.error('Error during logout:', error);
+      }
+    }
   };
 
   return (
